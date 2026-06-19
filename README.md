@@ -124,8 +124,9 @@ The synthetic data is deliberately messy, then cleaned to recognized standards.
   are imputed and flagged, and records that are deferrals or fail the safety limits
   are dropped. Steps are tagged verification (against internal rules) or validation (against the FDA and
   AABB donation limits). A data dictionary gives every column a meaning, unit, and
-  role, and a final quality gate asserts the cleaned table's invariants (no missing
-  features, gender only M or F, precount at or above 150, units 0 to 3, no leaky
+  role, and a final quality gate asserts seven invariants on the cleaned table (no
+  missing numeric features, gender only M or F, precount at or above 150,
+  accurate_count positive, target_rate positive and finite, units 0 to 3, no leaky
   columns) before release.
 
 Defects and checks map to the Kahn framework for electronic health record data
