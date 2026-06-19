@@ -1,5 +1,14 @@
 # Platelet Yield Prediction Pipeline
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?logo=scikit-learn&logoColor=white)
+![XGBoost](https://img.shields.io/badge/XGBoost-1A7A3B)
+![LightGBM](https://img.shields.io/badge/LightGBM-7CB342)
+![pandas](https://img.shields.io/badge/pandas-150458?logo=pandas&logoColor=white)
+![NumPy](https://img.shields.io/badge/NumPy-013243?logo=numpy&logoColor=white)
+![Data: synthetic](https://img.shields.io/badge/data-synthetic-lightgrey)
+
 A machine-learning pipeline that predicts, before a donor's appointment, how rich
 their platelet donation will be, and turns that prediction into a better booking
 and recruitment plan. It runs end to end on synthetic data that mimics real
@@ -83,6 +92,69 @@ Platelet_Yield_Pipeline_Simplified.pdf   Plain-language explainer
 ```
 
 Charts written by file 7: `feature_importance.png`, `pred_vs_actual.png`,
+`machine_drift.png`, `scheduling_payoff.png`, `target_sensitivity.png`.
+
+## Requirements
+
+```
+pip install numpy pandas scikit-learn matplotlib xgboost lightgbm
+```
+
+## Running the pipeline
+
+The seven files are meant to run as notebook cells, in number order, sharing one
+workspace. They do not import each other, so the number prefixes set the run
+order, and no separate runner script is needed.
+
+- In Jupyter or JupyterHub: paste each file into its own cell, in order 1 to 7,
+  and run top to bottom.
+- In a plain Python session: run them in order in the same process so they share
+  one namespace, for example `exec(open("1- synthetic_yield.py").read())` through
+  file 7.
+
+File 1 exposes one knob, `DEFECT_RATE` (default 1.0), that scales the injected
+defects; set it to 0 for clean data. Everything is seeded (`SEED = 42`), so runs
+are reproducible.
+
+## Data quality
+
+The synthetic data is deliberately messy, then cleaned to recognized standards.
+
+- `1- synthetic_yield.py` keeps a clean ground-truth table and injects realistic
+  intake defects on top of it: duplicates and overlays, missing values, mixed and
+  unparseable dates, inconsistent gender coding, numbers stored as text, unit
+  slips (pounds, inches), impossible values, impossible timing, and recorded-units
+  versus measured-count mismatches.
+- `2- cleaning.py` detects and repairs or drops each defect class. Missing values
+  are imputed and flagged, and records that are deferrals or fail the safety limits
+  are dropped. Steps are tagged verification (against internal rules) or validation (against the FDA and
+  AABB donation limits). A data dictionary gives every column a meaning, unit, and
+  role, and a final quality gate asserts the cleaned table's invariants (no missing
+  features, gender only M or F, precount at or above 150, units 0 to 3, no leaky
+  columns) before release.
+
+Defects and checks map to the Kahn framework for electronic health record data
+(conformance, completeness, plausibility) and the DAMA six dimensions
+(completeness, validity, consistency, uniqueness, timeliness, accuracy). FDA is
+the Food and Drug Administration; AABB is the blood-bank accreditation body; DAMA
+is the Data Management Association.
+
+## Limitations
+
+- Synthetic data only. Connecting to real SBC records (extraction) is out of scope
+  for this demo; the cleaning and modeling are built to accept real data in the
+  same shape.
+- Weight unit slips can only be resolved in the clear cases (a value impossible as
+  kilograms for the recorded height). Truly ambiguous values, plausible as either
+  pounds or kilograms, are left as recorded, since they cannot be resolved without
+  a recorded unit. Weight is a weak predictor, so the effect on the model is small.
+- The apheresis machine's own count is reported only as a reference, not as a head
+  to head rival, because it is an at-the-chair value that is not available at
+  booking and predicts the total, not the per-liter rate.
+
+## License
+
+Released under the MIT License. See `LICENSE`.
 `machine_drift.png`, `scheduling_payoff.png`, `target_sensitivity.png`.
 
 ## Requirements
